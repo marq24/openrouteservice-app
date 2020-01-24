@@ -163,7 +163,7 @@ angular.module("orsApp").directive("orsMap", () => {
             opacity: 0.45,
             transparent: true,
             maxZoom: 22,
-            maxNativeZoom: 16
+            maxNativeZoom: 12
           }
         );
 
@@ -174,7 +174,7 @@ angular.module("orsApp").directive("orsMap", () => {
             opacity: 0.75,
             transparent: true,
             maxZoom: 22,
-            maxNativeZoom: 12
+            maxNativeZoom: 14
           }
         );
 
