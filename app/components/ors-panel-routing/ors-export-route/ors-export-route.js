@@ -31,6 +31,10 @@ angular
             value: "kml"
           },
           {
+            text: "Garmin TCX (.tcx)",
+            value: "tcx"
+          },
+          {
             text: "GeoJSON (.geojson)",
             value: "geojson"
           }
