@@ -57,8 +57,8 @@ angular.module("orsApp").directive("orsMap", () => {
           ENV.key !== undefined
             ? ENV.key
             : orsApikeyFactory.getApiKey() === undefined
-            ? weathercheck
-            : orsApikeyFactory.getApiKey();
+              ? weathercheck
+              : orsApikeyFactory.getApiKey();
         let ak = "?api_key=" + apiKey;
 
         $scope.translateFilter = $filter("translate");
@@ -410,7 +410,7 @@ angular.module("orsApp").directive("orsMap", () => {
           orsCookiesFactory.getMapOptions() &&
           orsCookiesFactory.getMapOptions().msi
             ? orsCookiesFactory.getMapOptions().msi
-            : 0;
+            : 1;
 
         // mapOptionsInitSubject is a replay subject and only subscribes once
         let mapInitSubject = orsSettingsFactory.mapOptionsInitSubject.subscribe(
