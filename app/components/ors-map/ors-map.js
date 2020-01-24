@@ -90,6 +90,7 @@ angular.module("orsApp").directive("orsMap", () => {
         const openstreetmap = L.tileLayer(orsNamespaces.layerOSM.url, {
           attribution: orsNamespaces.layerOSM.attribution,
           subdomains: "abc",
+          maxZoom: 22,
           maxNativeZoom: 19,
           id: 2
         });
@@ -99,6 +100,7 @@ angular.module("orsApp").directive("orsMap", () => {
           {
             attribution:
               "Mapdata &copy; 2020 Sources: Esri, DeLorme, NAVTEQ, TomTom, Intermap, increment P Corp., GEBCO, USGS, FAO, NPS, NRCAN, GeoBase, IGN, Kadaster NL, Ordnance Survey, Esri Japan, METI, Esri China (Hong Kong), swisstopo, and the GIS User Community",
+            maxZoom: 22,
             maxNativeZoom: 18,
             id: 3
           }
@@ -108,6 +110,7 @@ angular.module("orsApp").directive("orsMap", () => {
           {
             attribution: "Mapdata &copy; 2020 MapBox.com",
             subdomains: "abc",
+            maxZoom: 22,
             maxNativeZoom: 22,
             id: 4
           }
@@ -117,6 +120,7 @@ angular.module("orsApp").directive("orsMap", () => {
           {
             attribution: "Mapdata &copy; 2020 Google",
             subdomains: "0123",
+            maxZoom: 22,
             maxNativeZoom: 21,
             id: 5
           }
@@ -126,22 +130,26 @@ angular.module("orsApp").directive("orsMap", () => {
           {
             attribution: "Mapdata &copy; 2020 Google",
             subdomains: "0123",
+            maxZoom: 22,
             maxNativeZoom: 21,
             id: 6
           }
         );
         const opencyclemap = L.tileLayer(orsNamespaces.layerOSMCycle.url, {
           attribution: orsNamespaces.layerOSMCycle.attribution,
+          maxZoom: 22,
           maxNativeZoom: 19,
           id: 7
         });
         const transportdark = L.tileLayer(orsNamespaces.layerOSMDark.url, {
           attribution: orsNamespaces.layerOSMDark.attribution,
+          maxZoom: 22,
           maxNativeZoom: 19,
           id: 8
         });
         const outdoors = L.tileLayer(orsNamespaces.layerOutdoors.url, {
           attribution: orsNamespaces.layerOutdoors.attribution,
+          maxZoom: 22,
           maxNativeZoom: 19,
           id: 9
         });
@@ -154,6 +162,7 @@ angular.module("orsApp").directive("orsMap", () => {
             format: "image/png",
             opacity: 0.45,
             transparent: true,
+            maxZoom: 22,
             maxNativeZoom: 16
           }
         );
@@ -164,7 +173,8 @@ angular.module("orsApp").directive("orsMap", () => {
             format: "image/png",
             opacity: 0.75,
             transparent: true,
-            maxNativeZoom: 14
+            maxZoom: 22,
+            maxNativeZoom: 12
           }
         );
 
