@@ -126,7 +126,7 @@ angular.module("orsApp").directive("orsMap", () => {
           }
         );
         const googlesat = L.tileLayer(
-          "http://khms{s}.googleapis.com/kh?v=852&x={x}&y={y}&z={z}&",
+          "http://khms{s}.googleapis.com/kh?v=863&x={x}&y={y}&z={z}&",
           {
             attribution: "Mapdata &copy; 2020 Google",
             subdomains: "0123",
