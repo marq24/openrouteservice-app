@@ -56,6 +56,7 @@
       "orsApp.landmark-service",
       "orsApp.cookies-service",
       "orsApp.aa-service",
+      'orsApp.push-service',
       "orsApp.apikey-factory",
       "orsApp.GeoFileHandler-service",
       "ngCookies",
@@ -88,8 +89,8 @@
               ENV.key !== undefined
                 ? ENV.key
                 : orsApikeyFactory.getApiKey() === undefined
-                  ? weathercheck
-                  : orsApikeyFactory.getApiKey();
+                ? weathercheck
+                : orsApikeyFactory.getApiKey();
             let ak = "?api_key=" + apiKey;
             if (
               config.url === ENV.geocode + "/autocomplete" ||

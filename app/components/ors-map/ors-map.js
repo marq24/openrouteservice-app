@@ -57,8 +57,8 @@ angular.module("orsApp").directive("orsMap", () => {
           ENV.key !== undefined
             ? ENV.key
             : orsApikeyFactory.getApiKey() === undefined
-              ? weathercheck
-              : orsApikeyFactory.getApiKey();
+            ? weathercheck
+            : orsApikeyFactory.getApiKey();
         let ak = "?api_key=" + apiKey;
 
         $scope.translateFilter = $filter("translate");
@@ -73,9 +73,11 @@ angular.module("orsApp").directive("orsMap", () => {
           format: "image/png",
           attribution:
             '© <a href="http://www.bkg.bund.de">Bundesamt für Kartographie und Geodäsie</a> 2017, <a href="https://sgx.geodatenzentrum.de/web_public/Datenquellen_TopPlus_Open.pdf">Datenquellen</a>',
+          maxZoom: 22,
+          maxNativeZoom: 19,
           id: 1
         });
-        const bkgtopplusgrey = L.tileLayer.wms(
+        /*const bkgtopplusgrey = L.tileLayer.wms(
           orsNamespaces.layerBkgTopPlus.url,
           {
             layers: "web_grau",
@@ -84,32 +86,88 @@ angular.module("orsApp").directive("orsMap", () => {
               '© <a href="http://www.bkg.bund.de">Bundesamt für Kartographie und Geodäsie</a> 2017, <a href="https://sgx.geodatenzentrum.de/web_public/Datenquellen_TopPlus_Open.pdf">Datenquellen</a>',
             id: 2
           }
-        );
+        );*/
         const openstreetmap = L.tileLayer(orsNamespaces.layerOSM.url, {
           attribution: orsNamespaces.layerOSM.attribution,
-          id: 3
+          subdomains: "abc",
+          maxNativeZoom: 19,
+          id: 2
         });
+
+        const esritopo = L.tileLayer(
+          "http://services.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}",
+          {
+            attribution:
+              "Mapdata &copy; 2020 Sources: Esri, DeLorme, NAVTEQ, TomTom, Intermap, increment P Corp., GEBCO, USGS, FAO, NPS, NRCAN, GeoBase, IGN, Kadaster NL, Ordnance Survey, Esri Japan, METI, Esri China (Hong Kong), swisstopo, and the GIS User Community",
+            maxNativeZoom: 18,
+            id: 3
+          }
+        );
+        const mapbox = L.tileLayer(
+          "http://{s}.tiles.mapbox.com/v4/mapbox.streets/{z}/{x}/{y}.png?access_token=pk.eyJ1Ijoic3RyYXZhIiwiYSI6IlpoeXU2U0UifQ.c7yhlZevNRFCqHYm6G6Cyg",
+          {
+            attribution: "Mapdata &copy; 2020 MapBox.com",
+            subdomains: "abc",
+            maxNativeZoom: 22,
+            id: 4
+          }
+        );
+        const google = L.tileLayer(
+          "http://mt{s}.google.com/vt?x={x}&y={y}&z={z}&",
+          {
+            attribution: "Mapdata &copy; 2020 Google",
+            subdomains: "0123",
+            maxNativeZoom: 21,
+            id: 5
+          }
+        );
+        const googlesat = L.tileLayer(
+          "http://khms{s}.googleapis.com/kh?v=852&x={x}&y={y}&z={z}&",
+          {
+            attribution: "Mapdata &copy; 2020 Google",
+            subdomains: "0123",
+            maxNativeZoom: 21,
+            id: 6
+          }
+        );
         const opencyclemap = L.tileLayer(orsNamespaces.layerOSMCycle.url, {
           attribution: orsNamespaces.layerOSMCycle.attribution,
-          id: 4
+          maxNativeZoom: 19,
+          id: 7
         });
         const transportdark = L.tileLayer(orsNamespaces.layerOSMDark.url, {
           attribution: orsNamespaces.layerOSMDark.attribution,
-          id: 5
+          maxNativeZoom: 19,
+          id: 8
         });
         const outdoors = L.tileLayer(orsNamespaces.layerOutdoors.url, {
           attribution: orsNamespaces.layerOutdoors.attribution,
-          id: 6
+          maxNativeZoom: 19,
+          id: 9
         });
         // const stamen = L.tileLayer(orsNamespaces.layerStamen.url, {
         //     attribution: orsNamespaces.layerStamen.attribution,
         // });
-        /*const hillshade = L.tileLayer(orsNamespaces.overlayHillshade.url, {
-                    format: 'image/png',
-                    opacity: 0.45,
-                    transparent: true,
-                    attribution: '<a href="http://srtm.csi.cgiar.org/">SRTM</a>; ASTER GDEM is a product of <a href="http://www.meti.go.jp/english/press/data/20090626_03.html">METI</a> and <a href="https://lpdaac.usgs.gov/products/aster_policies">NASA</a>',
-                });*/
+        const hillshade = L.tileLayer(
+          "https://api.maptiler.com/tiles/hillshades/{z}/{x}/{y}.png?key=Tn3px82YGqS0FjSrAG6H",
+          {
+            format: "image/png",
+            opacity: 0.45,
+            transparent: true,
+            maxNativeZoom: 16
+          }
+        );
+
+        const stravaheatmap = L.tileLayer(
+          "https://d22umfi1yqsdc.cloudfront.net/tiles/01000000005DCF1A259A64B1-71C177C9/{z}-{x}-{y}.png?1569143606",
+          {
+            format: "image/png",
+            opacity: 0.75,
+            transparent: true,
+            maxNativeZoom: 14
+          }
+        );
+
         $scope.geofeatures = {
           layerLocationMarker: L.featureGroup(),
           layerRoutePoints: L.featureGroup(),
@@ -397,11 +455,11 @@ angular.module("orsApp").directive("orsMap", () => {
         $scope.brand = L.control({
           position: "topleft"
         });
-        $scope.brand.onAdd = function(map) {
+        /*$scope.brand.onAdd = function(map) {
           var divs = L.DomUtil.create("div", "ors-brand-small");
           divs.innerHTML = '<img src="img/brand.png">';
           return divs;
-        };
+        };*/
         $timeout(function() {
           $scope.mapModel.map.addControl($scope.brand);
         }, 500);
@@ -459,16 +517,21 @@ angular.module("orsApp").directive("orsMap", () => {
           setSettings();
         };
         $scope.baseLayers = {
-          OpenMapSurfer: mapsurfer,
+          "MapBox (Steet)": mapbox,
+          "Google Maps": google,
+          "Google Maps (Satellite)": googlesat,
+          "esri World Topographic Map": esritopo,
+          //OpenMapSurfer: mapsurfer,
           "TopPlus-Web-Open": bkgtopplus,
-          "TopPlus-Web-Open Greyscale": bkgtopplusgrey,
+          //"TopPlus-Web-Open Greyscale": bkgtopplusgrey,
           OpenStreetMap: openstreetmap,
           OpenCycleMap: opencyclemap,
-          "Transport Dark": transportdark,
+          //"Transport Dark": transportdark,
           Outdoors: outdoors
         };
         $scope.overlays = {
-          // "Hillshade": hillshade
+          Hillshade: hillshade,
+          "My Strava Heatmap": stravaheatmap
         };
         $scope.mapModel.map.on("load", evt => {
           // add mapstyle
@@ -1449,6 +1512,7 @@ angular.module("orsApp").directive("orsMap", () => {
           $scope.mapModel.map.closePopup();
           const lngLatString = orsUtilsService.parseLngLatString(pos);
           const latLngString = orsUtilsService.parseLatLngString(pos);
+
           // get the information of the rightclick location
           const payload = orsUtilsService.geocodingPayload(lngLatString, true);
           const request = orsRequestService.geocode(payload, true);
@@ -1490,7 +1554,8 @@ angular.module("orsApp").directive("orsMap", () => {
             }
           );
         };
-        $scope.locationsControl = () => {
+
+        /*$scope.locationsControl = () => {
           return L.control.angular({
             position: "topright",
             template: `
@@ -1830,6 +1895,8 @@ angular.module("orsApp").directive("orsMap", () => {
             }
           });
         };
+        */
+
         // add locations control
         $timeout(function() {
           if (!$scope.smallScreen) {
@@ -2018,6 +2085,7 @@ angular.module("orsApp").directive("orsRoutePointPopup", [
     };
   }
 ]);
+/*
 angular.module("orsApp").directive("orsWelcomeBox", [
   "$translate",
   $translate => {
@@ -2057,4 +2125,4 @@ angular.module("orsApp").directive("orsSignupBox", [
       }
     };
   }
-]);
+]);*/

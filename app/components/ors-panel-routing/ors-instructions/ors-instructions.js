@@ -1,5 +1,9 @@
 angular
-  .module("orsApp.ors-instructions", ["orsApp.ors-exportRoute-controls"])
+  .module("orsApp.ors-instructions", [
+    "orsApp.ors-exportRoute-controls",
+    "orsApp.ors-share",
+    "orsApp.ors-push"
+  ])
   .component("orsInstructions", {
     templateUrl:
       "components/ors-panel-routing/ors-instructions/ors-instructions.html",
@@ -138,6 +142,9 @@ angular
           const routeString = $scope.route.geometry;
           const geometry = routeString.slice(pair[0], pair[1] + 1);
           orsRouteService.zoomTo(geometry);
+        };
+        ctrl.onPushFinish = () => {
+          ctrl.showPush = false;
         };
       }
     ]

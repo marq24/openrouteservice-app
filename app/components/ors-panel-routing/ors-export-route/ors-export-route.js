@@ -19,6 +19,10 @@ angular
         ctrl.geojsonOptShow = false;
         ctrl.fileFormat = [
           {
+            text: "GPSLogger II Route (.json)",
+            value: "rawjson"
+          },
+          {
             text: "GPS eXchange Format (.gpx)",
             value: "gpx"
           },
@@ -29,10 +33,6 @@ angular
           {
             text: "GeoJSON (.geojson)",
             value: "geojson"
-          },
-          {
-            text: "RawJSON (.json)",
-            value: "rawjson"
           }
         ];
         ctrl.selected_fileformat = ctrl.fileFormat[0]; //this is the default selected value on the dropdown menu

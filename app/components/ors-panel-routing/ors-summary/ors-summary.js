@@ -1,7 +1,8 @@
 angular
   .module("orsApp.ors-summary", [
     "orsApp.ors-exportRoute-controls",
-    "orsApp.ors-share"
+    "orsApp.ors-share",
+    "orsApp.ors-push"
   ])
   .component("orsSummaries", {
     templateUrl: "components/ors-panel-routing/ors-summary/ors-summary.html",
@@ -30,6 +31,7 @@ angular
         ctrl.carCategories = carCategories;
         ctrl.checkboxes = [false, false, false, false];
         ctrl.showShare = false;
+        ctrl.showPush = false;
         ctrl.showExport = false;
         ctrl.profiles = lists.profiles;
         ctrl.setIdx = idx => {

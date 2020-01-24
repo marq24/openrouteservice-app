@@ -1,0 +1,23 @@
+<header>
+    <h1 ng-bind-html="('PUSH_LINK' | translate)">
+    </h1>
+</header>
+<section>
+    <div>
+        <label ng-bind-html="('PUSH_HINT' | translate)">
+        </label>
+    </div>
+
+    <div class="ui divider">
+    </div>
+    <button class="ui mini button" ng-bind-html="('PUSH' | translate)" ng-click="$ctrl.pushRoute()" ng-show="!$ctrl.btDisabled">
+    </button>
+    <div ng-show="$ctrl.spinner" class="ui active centered inline loader">
+    </div>
+
+    <ors-modal data-ng-if="$ctrl.showMsgDialog" show="$ctrl.showMsgDialog">
+        <label>{{$ctrl.message}}</label>
+        <div class="ui divider"></div>
+        <button class="ui mini button" ng-click="$ctrl.okOnDialog()">Ok</button>
+    </ors-modal>
+</section>

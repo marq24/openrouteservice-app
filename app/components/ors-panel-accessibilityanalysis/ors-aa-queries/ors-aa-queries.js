@@ -16,6 +16,7 @@ angular
         ctrl.aaQueries = orsAaService.aaQueries;
         ctrl.showExport = false;
         ctrl.showShare = false;
+        ctrl.showPush = false;
         /** if we are returning to this panel, dispose all old subscriptions */
         try {
           if ($rootScope.isochronesSubscription !== undefined)

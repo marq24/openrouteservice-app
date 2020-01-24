@@ -52,3 +52,7 @@
     <ors-share>
     </ors-share>
 </ors-modal>
+<ors-modal data-ng-if="$ctrl.showPush" show="$ctrl.showPush">
+    <ors-push onfinish="$ctrl.onPushFinish">
+    </ors-push>
+</ors-modal>

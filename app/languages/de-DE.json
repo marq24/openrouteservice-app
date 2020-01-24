@@ -223,5 +223,12 @@
     "_FOR": "Für",
     "WHEELCHAIR_FLAG": "(nur Europa)",
     "ADDRESSES_HINT": "Für beste Ergebnisse formulieren Sie Ihre Suchanfrage von klein nach groß (bspw. Musterstraße 1 Musterstadt Musterland)",
-    "ADD_DIRECT": "Als direkten Wegpunkt hinzufügen"
+    "ADD_DIRECT": "Als direkten Wegpunkt hinzufügen",
+
+    "PUSH_LINK": "Strecke Pushen",
+    "PUSH_HINT": "This will send the route to emacberry.com so that it can be picked up directly from GPSLogger&nbsp;II PathManager. In order that you can pick up the route from your mobile device, your current location is required/will be requested. Your location will be stored temporary without any connected to any personal data!",
+    "PUSH": "Übermitteln",
+    "START_GPSLOGGER_MSG": "Sie können nun den GPSLogger starten und über das Menu des Strecken Managers diese Route abholen!",
+    "PUSH_FAILED_MSG": "Bei der Übermittlung der Route ist ein Fehler aufgetreten - bitte versuchen Sie es zu einem späteren Zeitpunkt erneut.",
+    "PUSH_NO_LOCATION_MSG": "Damit die Route vom GPSLogger auf Ihreme Mobilgerät abgeholt werden kann, wird Ihre aktuelle Position benötigt. Bitte gestatten Sie ihrem Browser das Abrufen Ihrer Position."
 }

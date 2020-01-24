@@ -5,7 +5,7 @@
             </i>
         </button>
     </li>
-    <li>
+    <!--li>
         <button tooltips tooltip-template="{{('HGV' | translate)}}" tooltip-side="bottom"  class="ors-button flleft" ng-click="$ctrl.changeProfile($ctrl.profiles.hgv.name)">
             <i class="fa fa-lg fa-bus" ng-class="{active : $ctrl.activeSubgroup === $ctrl.profiles.hgv.subgroup}">
             </i>
@@ -52,7 +52,7 @@
                 </li>
             </ul>
         </span>
-    </li>
+    </li-->
     <li>
         <button tooltips tooltip-template="{{('BICYCLE' | translate)}}" tooltip-side="bottom" class="ors-button flleft" ng-click="$ctrl.changeProfile($ctrl.profiles.Bicycle.name)">
             <i class="fa fa-lg fa-bicycle" ng-class="{active : $ctrl.activeSubgroup === $ctrl.profiles.Bicycle.name}">
@@ -113,7 +113,7 @@
             </ul>
         </span>
     </li>
-    <li>
+    <!--li>
         <button tooltips tooltip-template="{{('WHEELCHAIR' | translate)}}" tooltip-side="bottom"  class="ors-button flleft" ng-click="$ctrl.changeProfile($ctrl.profiles.Wheelchair.name)">
             <i class="fa fa-lg fa-wheelchair-alt" ng-class="{active : $ctrl.activeSubgroup === $ctrl.profiles.Wheelchair.name}">
             </i>
@@ -121,5 +121,5 @@
     </li>
     <li ng-if="$ctrl.activeSubgroup === $ctrl.profiles.Wheelchair.name">
         <span class="ors-nav-wheelchair-warning">{{('WHEELCHAIR_FLAG' | translate)}}</span>
-    </li>
+    </li-->
 </ul>
