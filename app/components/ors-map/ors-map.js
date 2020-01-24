@@ -410,7 +410,7 @@ angular.module("orsApp").directive("orsMap", () => {
           orsCookiesFactory.getMapOptions() &&
           orsCookiesFactory.getMapOptions().msi
             ? orsCookiesFactory.getMapOptions().msi
-            : 1;
+            : 4;
 
         // mapOptionsInitSubject is a replay subject and only subscribes once
         let mapInitSubject = orsSettingsFactory.mapOptionsInitSubject.subscribe(
@@ -469,10 +469,10 @@ angular.module("orsApp").directive("orsMap", () => {
           var divs = L.DomUtil.create("div", "ors-brand-small");
           divs.innerHTML = '<img src="img/brand.png">';
           return divs;
-        };*/
+        };
         $timeout(function() {
           $scope.mapModel.map.addControl($scope.brand);
-        }, 500);
+        }, 500);*/
         // hack to remove measure string from box
         const el = angular
           .element(document.querySelector(".js-toggle"))
@@ -1905,8 +1905,6 @@ angular.module("orsApp").directive("orsMap", () => {
             }
           });
         };
-        */
-
         // add locations control
         $timeout(function() {
           if (!$scope.smallScreen) {
@@ -1924,7 +1922,7 @@ angular.module("orsApp").directive("orsMap", () => {
               ).disableScrollPropagation(lControl);
             }
           }
-        }, 500);
+        }, 500);*/
         /**
          * Dispatches all commands sent by Mapservice by using id and then performing the corresponding function
          */
