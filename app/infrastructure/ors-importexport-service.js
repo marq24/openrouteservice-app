@@ -147,14 +147,16 @@ angular
         // make tcx object
         var tcx = {
           TrainingCenterDatabase: {
-            "@xsi:schemaLocation":"http://www.garmin.com/xmlschemas/TrainingCenterDatabase/v2 http://www.garmin.com/xmlschemas/TrainingCenterDatabasev2.xsd",
+            "@xsi:schemaLocation":
+              "http://www.garmin.com/xmlschemas/TrainingCenterDatabase/v2 http://www.garmin.com/xmlschemas/TrainingCenterDatabasev2.xsd",
             //"@xmlns:ns5": "http://www.garmin.com/xmlschemas/ActivityGoals/v1",
             //"@xmlns:ns4": "http://www.garmin.com/xmlschemas/ProfileExtension/v1",
             //"@xmlns:ns3": "http://www.garmin.com/xmlschemas/ActivityExtension/v2",
             //"@xmlns:ns2": "http://www.garmin.com/xmlschemas/UserProfile/v2",
-            "@xmlns":"http://www.garmin.com/xmlschemas/TrainingCenterDatabase/v2",
-            "@xmlns:xsi":"http://www.w3.org/2001/XMLSchema-instance",
-            Activities: { Activity: { Lap: {Track: []} } }
+            "@xmlns":
+              "http://www.garmin.com/xmlschemas/TrainingCenterDatabase/v2",
+            "@xmlns:xsi": "http://www.w3.org/2001/XMLSchema-instance",
+            Activities: { Activity: { Lap: { Track: [] } } }
           }
         };
 
@@ -175,25 +177,29 @@ angular
               var coords = f.geometry.coordinates;
               var times = options.featureCoordTimes(f);
               if (f.geometry.type == "LineString") coords = [coords];
-              o = {
+              var trackObj = {
                 //name: options.featureTitle(f.properties),
                 //desc: options.featureDescription(f.properties)
               };
-              add_feature_link(o, f);
-              o.Trackpoint = [];
+              add_feature_link(trackObj, f);
+              trackObj.Trackpoint = [];
               coords.forEach(function(coordinates) {
                 coordinates.forEach(function(c, i) {
-                  var tp = { Position: {"LatitudeDegrees": c[1],"LongitudeDegrees": c[0]} } ;
+                  var tp = {
+                    Position: { LatitudeDegrees: c[1], LongitudeDegrees: c[0] }
+                  };
                   if (c[2] !== undefined) {
                     tp.AltitudeMeters = c[2];
                   }
                   if (times && times[i]) {
                     tp.Time = times[i];
                   }
-                  o.Trackpoint.push(tp);
+                  trackObj.Trackpoint.push(tp);
                 });
               });
-              tcx.TrainingCenterDatabase.Activities.Activity.Lap.Track.push(o);
+              tcx.TrainingCenterDatabase.Activities.Activity.Lap.Track.push(
+                trackObj
+              );
               break;
 
             default:
@@ -204,8 +210,8 @@ angular
         });
 
         JXON.config({ attrPrefix: "@" });
-        tcx_str = JXON.stringify(tcx);
-        return '<?xml version="1.0" encoding="UTF-8"?>'+tcx_str;
+        var tcx_str = JXON.stringify(tcx);
+        return '<?xml version="1.0" encoding="UTF-8"?>' + tcx_str;
       };
 
       let orsExportFactory = {};
