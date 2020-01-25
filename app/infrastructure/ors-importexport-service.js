@@ -77,73 +77,7 @@ angular
       };
 
       // took from togpx code - and just adjusted a little...
-      let totcx = (geojson, options) => {
-        options = (function(defaults, options) {
-          for (var k in defaults) {
-            if (options.hasOwnProperty(k)) defaults[k] = options[k];
-          }
-          return defaults;
-        })(
-          {
-            creator: "totcx",
-            metadata: undefined,
-            featureTitle: get_feature_title,
-            featureDescription: get_feature_description,
-            featureLink: undefined,
-            featureCoordTimes: get_feature_coord_times
-          },
-          options || {}
-        );
-
-        // is featureCoordTimes is a string -> look for the specified property
-        if (typeof options.featureCoordTimes === "string") {
-          var customTimesFieldKey = options.featureCoordTimes;
-          options.featureCoordTimes = function(feature) {
-            return feature.properties[customTimesFieldKey];
-          };
-        }
-
-        function get_feature_title(props) {
-          // a simple default heuristic to determine a title for a given feature
-          // uses a nested `tags` object or the feature's `properties` if present
-          // and then searchs for the following properties to construct a title:
-          // `name`, `ref`, `id`
-          if (!props) return "";
-          if (typeof props.tags === "object") {
-            var tags_title = get_feature_title(props.tags);
-            if (tags_title !== "") return tags_title;
-          }
-          if (props.name) return props.name;
-          if (props.ref) return props.ref;
-          if (props.id) return props.id;
-          return "";
-        }
-
-        function get_feature_description(props) {
-          // constructs a description for a given feature
-          // uses a nested `tags` object or the feature's `properties` if present
-          // and then concatenates all properties to construct a description.
-          if (!props) return "";
-          if (typeof props.tags === "object")
-            return get_feature_description(props.tags);
-          var res = "";
-          for (var k in props) {
-            if (typeof props[k] === "object") continue;
-            res += k + "=" + props[k] + "\n";
-          }
-          return res.substr(0, res.length - 1);
-        }
-        function get_feature_coord_times(feature) {
-          if (!feature.properties) return null;
-          return (
-            feature.properties.times || feature.properties.coordTimes || null
-          );
-        }
-        function add_feature_link(o, f) {
-          if (options.featureLink)
-            o.link = { "@href": options.featureLink(f.properties) };
-        }
-
+      let totcx = (geojson, metadata) => {
         // make tcx object
         var tcx = {
           TrainingCenterDatabase: {
@@ -160,52 +94,43 @@ angular
           }
         };
 
-        var features;
-        if (geojson.type === "FeatureCollection") {
-          features = geojson.features;
-        } else if (geojson.type === "Feature") {
-          features = [geojson];
-        } else {
-          features = [{ type: "Feature", properties: {}, geometry: geojson }];
-        }
+        var coursObj = {
+          Name: "1234567890",
+          Track: { Trackpoint: [] }
+        };
 
-        features.forEach(function mapFeature(f) {
-          switch (f.geometry.type) {
-            // LineStrings
-            case "LineString":
-            case "MultiLineString":
-              var coords = f.geometry.coordinates;
-              var times = options.featureCoordTimes(f);
-              if (f.geometry.type == "LineString") coords = [coords];
-              var coursObj = {
-                Name: "1234567890",//options.featureTitle(f.properties),
-                Track: {Trackpoint: []}
-                //desc: options.featureDescription(f.properties)
-              };
-              //add_feature_link(trackObj, f);
-              coords.forEach(function(coordinates) {
-                coordinates.forEach(function(c, i) {
-                  var tp = {
-                    Position: { LatitudeDegrees: c[1], LongitudeDegrees: c[0] }
-                  };
-                  if (c[2] !== undefined) {
-                    tp.AltitudeMeters = c[2];
-                  }
-                  if (times && times[i]) {
-                    tp.Time = times[i];
-                  }
-                  coursObj.Track.Trackpoint.push(tp);
-                });
-              });
-              tcx.TrainingCenterDatabase.Courses.Course.push(coursObj);
-              break;
+        metadata.forEach(function meta(data, i) {
+          var hour = parseInt(i / 3600);
+          i = i - hour * 3600;
+          var hourS = hour + "";
 
-            default:
-              console.log(
-                "warning: unsupported geometry type: " + f.geometry.type
-              );
+          var min = parseInt(i / 60) + "";
+          var sec = parseInt(i % 60) + "";
+          if (hourS.length == 1) {
+            hourS = "0" + hourS;
           }
+          if (min.length == 1) {
+            min = "0" + min;
+          }
+          if (sec.length == 1) {
+            sec = "0" + sec;
+          }
+          var tp = {
+            Time: "2010-01-01T" + hourS + ":" + min + ":" + sec + "Z",
+            Position: {
+              LatitudeDegrees: data.coords[0],
+              LongitudeDegrees: data.coords[1]
+            }
+          };
+          if (data.heights !== undefined && data.heights.height !== undefined) {
+            tp.AltitudeMeters = data.heights.height;
+          }
+          if (data.distance !== undefined) {
+            tp.DistanceMeters = data.distance;
+          }
+          coursObj.Track.Trackpoint.push(tp);
         });
+        tcx.TrainingCenterDatabase.Courses.Course.push(coursObj);
 
         JXON.config({ attrPrefix: "@" });
         var tcx_str = JXON.stringify(tcx);
@@ -223,6 +148,7 @@ angular
        */
       orsExportFactory.exportFile = (
         geometry,
+        metadata,
         geomType,
         options,
         format,
@@ -248,7 +174,7 @@ angular
             break;
           case "tcx":
             geojsonData = L.polyline(geometry).toGeoJSON();
-            exportData = totcx(geojsonData);
+            exportData = totcx(geojsonData, metadata);
             break;
           case "rawjson":
             // removing nodes from the geometry data that is for sure not needed
