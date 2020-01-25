@@ -11,6 +11,7 @@ angular
         ctrl.elevation = true;
         ctrl.instructions = false;
         ctrl.toGpx = true;
+        ctrl.speedInKmh = 8.5;
         ctrl.filename = "ors-export-linestring";
         ctrl.gpxOptShow = true;
         ctrl.tcxOptShow = false;
@@ -94,7 +95,8 @@ angular
           let options = {
             elevation: ctrl.elevation,
             instructions: ctrl.instructions,
-            toGpx: ctrl.toGpx
+            toGpx: ctrl.toGpx,
+            speedInKmh: ctrl.speedInKmh
           };
           let currentRoute = null;
           let metaData = null;

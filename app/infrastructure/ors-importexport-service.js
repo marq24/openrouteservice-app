@@ -77,7 +77,7 @@ angular
       };
 
       // took from togpx code - and just adjusted a little...
-      let totcx = (geojson, metadata) => {
+      let totcx = (name, metadata, speedInKmh) => {
         // make tcx object
         var tcx = {
           TrainingCenterDatabase: {
@@ -95,40 +95,53 @@ angular
         };
 
         var coursObj = {
-          Name: "1234567890",
+          Name: name,
           Track: { Trackpoint: [] }
         };
 
+        var speed = speedInKmh / 3.6; // in m/sec (8km/h)
+        var lastDistance = 0;
+        var totalTimeInSec = 0;
         metadata.forEach(function meta(data, i) {
-          var hour = parseInt(i / 3600);
-          i = i - hour * 3600;
-          var hourS = hour + "";
-
-          var min = parseInt(i / 60) + "";
-          var sec = parseInt(i % 60) + "";
-          if (hourS.length == 1) {
-            hourS = "0" + hourS;
-          }
-          if (min.length == 1) {
-            min = "0" + min;
-          }
-          if (sec.length == 1) {
-            sec = "0" + sec;
-          }
-          var tp = {
-            Time: "2010-01-01T" + hourS + ":" + min + ":" + sec + "Z",
-            Position: {
-              LatitudeDegrees: data.coords[0],
-              LongitudeDegrees: data.coords[1]
-            }
-          };
-          if (data.heights !== undefined && data.heights.height !== undefined) {
-            tp.AltitudeMeters = data.heights.height;
-          }
           if (data.distance !== undefined) {
+            var deltaDistanceInMeter = data.distance - lastDistance;
+            var timeDelta = deltaDistanceInMeter / speed;
+            totalTimeInSec = totalTimeInSec + timeDelta;
+
+            var hour = parseInt(totalTimeInSec / 3600);
+            var totalTimeInSecSubHour = totalTimeInSec - hour * 3600;
+            var hourS = hour + "";
+
+            var minS = parseInt(totalTimeInSecSubHour / 60) + "";
+            var secS = parseInt(totalTimeInSecSubHour % 60) + "";
+            var msS = (totalTimeInSecSubHour % 60).toFixed(3) + "";
+
+            if (hourS.length == 1) {
+              hourS = "0" + hourS;
+            }
+            if (minS.length == 1) {
+              minS = "0" + minS;
+            }
+            if (secS.length == 1) {
+              msS = "0" + msS;
+            }
+            var tp = {
+              Time: "2010-01-01T" + hourS + ":" + minS + ":" + msS + "Z",
+              Position: {
+                LatitudeDegrees: data.coords[0],
+                LongitudeDegrees: data.coords[1]
+              }
+            };
+            if (
+              data.heights !== undefined &&
+              data.heights.height !== undefined
+            ) {
+              tp.AltitudeMeters = data.heights.height;
+            }
             tp.DistanceMeters = data.distance;
+            lastDistance = data.distance;
+            coursObj.Track.Trackpoint.push(tp);
           }
-          coursObj.Track.Trackpoint.push(tp);
         });
         tcx.TrainingCenterDatabase.Courses.Course.push(coursObj);
 
@@ -173,8 +186,7 @@ angular
             exportData = tokml(geojsonData);
             break;
           case "tcx":
-            geojsonData = L.polyline(geometry).toGeoJSON();
-            exportData = totcx(geojsonData, metadata);
+            exportData = totcx(filename, metadata, options.speedInKmh);
             break;
           case "rawjson":
             // removing nodes from the geometry data that is for sure not needed

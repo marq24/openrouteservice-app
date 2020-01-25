@@ -230,5 +230,6 @@
     "PUSH": "Übermitteln",
     "START_GPSLOGGER_MSG": "Sie können nun den GPSLogger starten und über das Menu des Strecken Managers diese Route abholen!",
     "PUSH_FAILED_MSG": "Bei der Übermittlung der Route ist ein Fehler aufgetreten - bitte versuchen Sie es zu einem späteren Zeitpunkt erneut.",
-    "PUSH_NO_LOCATION_MSG": "Damit die Route vom GPSLogger auf Ihreme Mobilgerät abgeholt werden kann, wird Ihre aktuelle Position benötigt. Bitte gestatten Sie ihrem Browser das Abrufen Ihrer Position."
+    "PUSH_NO_LOCATION_MSG": "Damit die Route vom GPSLogger auf Ihreme Mobilgerät abgeholt werden kann, wird Ihre aktuelle Position benötigt. Bitte gestatten Sie ihrem Browser das Abrufen Ihrer Position.",
+    "PACE_SPEED_INKMH": "Pace in km/h"
 }
