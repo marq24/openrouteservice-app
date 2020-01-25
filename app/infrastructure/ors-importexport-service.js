@@ -156,7 +156,7 @@ angular
             "@xmlns":
               "http://www.garmin.com/xmlschemas/TrainingCenterDatabase/v2",
             "@xmlns:xsi": "http://www.w3.org/2001/XMLSchema-instance",
-            Activities: { Activity: { Lap: { Track: [] } } }
+            Courses: { Course: [] }
           }
         };
 
@@ -177,12 +177,12 @@ angular
               var coords = f.geometry.coordinates;
               var times = options.featureCoordTimes(f);
               if (f.geometry.type == "LineString") coords = [coords];
-              var trackObj = {
-                //name: options.featureTitle(f.properties),
+              var coursObj = {
+                Name: "1234567890",//options.featureTitle(f.properties),
+                Track: {Trackpoint: []}
                 //desc: options.featureDescription(f.properties)
               };
-              add_feature_link(trackObj, f);
-              trackObj.Trackpoint = [];
+              //add_feature_link(trackObj, f);
               coords.forEach(function(coordinates) {
                 coordinates.forEach(function(c, i) {
                   var tp = {
@@ -194,12 +194,10 @@ angular
                   if (times && times[i]) {
                     tp.Time = times[i];
                   }
-                  trackObj.Trackpoint.push(tp);
+                  coursObj.Track.Trackpoint.push(tp);
                 });
               });
-              tcx.TrainingCenterDatabase.Activities.Activity.Lap.Track.push(
-                trackObj
-              );
+              tcx.TrainingCenterDatabase.Courses.Course.push(coursObj);
               break;
 
             default:
