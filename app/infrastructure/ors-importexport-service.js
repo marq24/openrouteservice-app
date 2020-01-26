@@ -90,7 +90,24 @@ angular
             "@xmlns":
               "http://www.garmin.com/xmlschemas/TrainingCenterDatabase/v2",
             "@xmlns:xsi": "http://www.w3.org/2001/XMLSchema-instance",
-            Courses: { Course: [] }
+            Courses: { Course: [] },
+            Author: {
+              "@xsi:type": "Application_t",
+              Name: "https://route.emacberry.com",
+              Build: {
+                Version: {
+                  VersionMajor: "0",
+                  VersionMinor: "4",
+                  BuildMajor: "1",
+                  BuildMinor: "0"
+                },
+                Type: "Release",
+                Time: "Jan 26 2020, 10:00:00",
+                Builder: "mcp"
+              },
+              LangID: "DE",
+              PartNumber: "EMA-CBERR-Y0" // The formatted XXX-XXXXX-XX Garmin part number of a PC application
+            }
           }
         };
 
@@ -110,7 +127,9 @@ angular
             },
             Intensity: "Active"
           },
-          Track: { Trackpoint: [] },
+          Track: {
+            Trackpoint: []
+          } /*,
           Creator: {
             "@xsi:type": "Application_t",
             Name: "https://route.emacberry.com",
@@ -127,22 +146,8 @@ angular
             },
             LangID: "DE",
             PartNumber: "EMA-CBERR-Y0" // The formatted XXX-XXXXX-XX Garmin part number of a PC application
-          }
+          }*/
         };
-
-        /*
-      <Creator xsi:type="Device_t">
-        <Name>vÃ­vosmart HR</Name>
-        <UnitId>3934960161</UnitId>
-        <ProductID>2348</ProductID>
-        <Version>
-          <VersionMajor>4</VersionMajor>
-          <VersionMinor>0</VersionMinor>
-          <BuildMajor>0</BuildMajor>
-          <BuildMinor>0</BuildMinor>
-        </Version>
-      </Creator>
-        */
 
         var lastDistance = 0;
         var totalTimeInSec = 0;
