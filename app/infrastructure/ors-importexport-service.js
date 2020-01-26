@@ -30,7 +30,7 @@ angular
         let geojsonData = L.polyline(geometry).toGeoJSON();
         geojsonData.properties.name = filename; // togpx is looking for name tag https://www.npmjs.com/package/togpx#gpx
         return togpx(geojsonData, {
-          creator: "OpenRouteService.org"
+          creator: "https://route.emacberry.com"
         });
       };
       /**
@@ -94,12 +94,40 @@ angular
           }
         };
 
+        var speed = speedInKmh / 3.6; // in m/sec (8km/h)
         var coursObj = {
           Name: name,
-          Track: { Trackpoint: [] }
+          Lap: {
+            TotalTimeSeconds: "",
+            DistanceMeters: metadata[metadata.length - 1].distance,
+            BeginPosition: {
+              LatitudeDegrees: metadata[0].coords[0],
+              LongitudeDegrees: metadata[0].coords[1]
+            },
+            EndPosition: {
+              LatitudeDegrees: metadata[metadata.length - 1].coords[0],
+              LongitudeDegrees: metadata[metadata.length - 1].coords[1]
+            },
+            Intensity: "Active"
+          },
+          Track: { Trackpoint: [] },
+          Creator: { Name: "https://route.emacberry.com" }
         };
 
-        var speed = speedInKmh / 3.6; // in m/sec (8km/h)
+        /*
+      <Creator xsi:type="Device_t">
+        <Name>vÃ­vosmart HR</Name>
+        <UnitId>3934960161</UnitId>
+        <ProductID>2348</ProductID>
+        <Version>
+          <VersionMajor>4</VersionMajor>
+          <VersionMinor>0</VersionMinor>
+          <BuildMajor>0</BuildMajor>
+          <BuildMinor>0</BuildMinor>
+        </Version>
+      </Creator>
+        */
+
         var lastDistance = 0;
         var totalTimeInSec = 0;
         metadata.forEach(function meta(data, i) {
@@ -143,6 +171,7 @@ angular
             coursObj.Track.Trackpoint.push(tp);
           }
         });
+        coursObj.Lap.TotalTimeSeconds = totalTimeInSec.toFixed(1);
         tcx.TrainingCenterDatabase.Courses.Course.push(coursObj);
 
         JXON.config({ attrPrefix: "@" });

@@ -11,7 +11,7 @@ angular
         ctrl.elevation = true;
         ctrl.instructions = false;
         ctrl.toGpx = true;
-        ctrl.speedInKmh = 8.5;
+        ctrl.speedInKmh = 10.5;
         ctrl.filename = "ors-export-linestring";
         ctrl.gpxOptShow = true;
         ctrl.tcxOptShow = false;
@@ -110,10 +110,12 @@ angular
               orsRouteService.data.features[
                 orsRouteService.getCurrentRouteIdx()
               ].geometry;
-            metaData =
-              orsRouteService.data.features[
-                orsRouteService.getCurrentRouteIdx()
-              ].point_information;
+            if (ctrl.currentFileFormat === "tcx") {
+              metaData =
+                orsRouteService.data.features[
+                  orsRouteService.getCurrentRouteIdx()
+                ].point_information;
+            }
           }
           orsExportFactory.exportFile(
             currentRoute,
