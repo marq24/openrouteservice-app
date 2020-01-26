@@ -111,7 +111,23 @@ angular
             Intensity: "Active"
           },
           Track: { Trackpoint: [] },
-          Creator: { Name: "https://route.emacberry.com" }
+          Creator: {
+            "@xsi:type": "Application_t",
+            Name: "https://route.emacberry.com",
+            Build: {
+              Version: {
+                VersionMajor: "0",
+                VersionMinor: "4",
+                BuildMajor: "1",
+                BuildMinor: "0"
+              },
+              Type: "Release",
+              Time: "Jan 26 2020, 10:00:00",
+              Builder: "mcp"
+            },
+            LangID: "DE",
+            PartNumber: "EMA-CBERR-Y0" // The formatted XXX-XXXXX-XX Garmin part number of a PC application
+          }
         };
 
         /*
