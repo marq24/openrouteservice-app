@@ -10,10 +10,10 @@ angular
       "$location",
       function($location) {
         let ctrl = this;
-        if ($location.path() == "/") {
+        if ($location.path() === "/") {
           ctrl.activeMenu = "/directions";
         } else ctrl.activeMenu = $location.path();
-        ctrl.version = "0.4.0";
+        ctrl.version = "0.4.1";
       }
     ],
     $routeConfig: [

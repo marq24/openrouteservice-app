@@ -57,8 +57,8 @@ angular.module("orsApp").directive("orsMap", () => {
           ENV.key !== undefined
             ? ENV.key
             : orsApikeyFactory.getApiKey() === undefined
-            ? weathercheck
-            : orsApikeyFactory.getApiKey();
+              ? weathercheck
+              : orsApikeyFactory.getApiKey();
         let ak = "?api_key=" + apiKey;
 
         $scope.translateFilter = $filter("translate");
@@ -163,7 +163,7 @@ angular.module("orsApp").directive("orsMap", () => {
             opacity: 0.45,
             transparent: true,
             maxZoom: 22,
-            maxNativeZoom: 16
+            maxNativeZoom: 12
           }
         );
 
@@ -174,7 +174,7 @@ angular.module("orsApp").directive("orsMap", () => {
             opacity: 0.75,
             transparent: true,
             maxZoom: 22,
-            maxNativeZoom: 12
+            maxNativeZoom: 14
           }
         );
 
@@ -333,7 +333,7 @@ angular.module("orsApp").directive("orsMap", () => {
               function() {
                 let orsLeft = document.getElementsByClassName("ors-left");
                 orsLeft = angular.element(orsLeft);
-                if (orsLeft.css("display") == "none") {
+                if (orsLeft.css("display") === "none") {
                   orsLeft.show();
                 } else {
                   orsLeft.hide();
@@ -410,7 +410,7 @@ angular.module("orsApp").directive("orsMap", () => {
           orsCookiesFactory.getMapOptions() &&
           orsCookiesFactory.getMapOptions().msi
             ? orsCookiesFactory.getMapOptions().msi
-            : 0;
+            : 4;
 
         // mapOptionsInitSubject is a replay subject and only subscribes once
         let mapInitSubject = orsSettingsFactory.mapOptionsInitSubject.subscribe(
@@ -469,10 +469,10 @@ angular.module("orsApp").directive("orsMap", () => {
           var divs = L.DomUtil.create("div", "ors-brand-small");
           divs.innerHTML = '<img src="img/brand.png">';
           return divs;
-        };*/
+        };
         $timeout(function() {
           $scope.mapModel.map.addControl($scope.brand);
-        }, 500);
+        }, 500);*/
         // hack to remove measure string from box
         const el = angular
           .element(document.querySelector(".js-toggle"))
@@ -1136,9 +1136,10 @@ angular.module("orsApp").directive("orsMap", () => {
           const isDistanceMarkers =
             orsSettingsFactory.getUserOptions().distanceMarkers === true;
           let polyLine = L.polyline(actionPackage.geometry, {
-            index: !(actionPackage.featureId === undefined)
-              ? actionPackage.featureId
-              : null,
+            index:
+              actionPackage.featureId !== undefined
+                ? actionPackage.featureId
+                : null,
             interactive: false,
             distanceMarkers: {
               lazy: !isDistanceMarkers,
@@ -1162,9 +1163,10 @@ angular.module("orsApp").directive("orsMap", () => {
         $scope.addPolyline = actionPackage => {
           $scope.mapModel.map.closePopup();
           const polyLine = L.polyline(actionPackage.geometry, {
-            index: !(actionPackage.featureId === undefined)
-              ? actionPackage.featureId
-              : null,
+            index:
+              actionPackage.featureId !== undefined
+                ? actionPackage.featureId
+                : null,
             interactive: true,
             distanceMarkers: {
               lazy: true
@@ -1905,8 +1907,6 @@ angular.module("orsApp").directive("orsMap", () => {
             }
           });
         };
-        */
-
         // add locations control
         $timeout(function() {
           if (!$scope.smallScreen) {
@@ -1924,7 +1924,7 @@ angular.module("orsApp").directive("orsMap", () => {
               ).disableScrollPropagation(lControl);
             }
           }
-        }, 500);
+        }, 500);*/
         /**
          * Dispatches all commands sent by Mapservice by using id and then performing the corresponding function
          */

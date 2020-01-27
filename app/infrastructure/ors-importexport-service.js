@@ -30,7 +30,7 @@ angular
         let geojsonData = L.polyline(geometry).toGeoJSON();
         geojsonData.properties.name = filename; // togpx is looking for name tag https://www.npmjs.com/package/togpx#gpx
         return togpx(geojsonData, {
-          creator: "OpenRouteService.org"
+          creator: "https://route.emacberry.com"
         });
       };
       /**
@@ -43,7 +43,7 @@ angular
         let userOptions = orsSettingsFactory.getUserOptions();
         let settings = orsSettingsFactory.getSettings();
         let payload = orsUtilsService.routingPayload(settings, userOptions);
-        payload.format = "gpx";
+        payload.geometry_format = "gpx";
         if (!options.instructions) payload.instructions = false;
         const request = orsRouteService.fetchRoute(payload);
         orsRouteService.routingRequests.requests.push(request);
@@ -76,6 +76,130 @@ angular
         );
       };
 
+      // took from togpx code - and just adjusted a little...
+      let totcx = (name, metadata, speedInKmh) => {
+        // make tcx object
+        var tcx = {
+          TrainingCenterDatabase: {
+            "@xsi:schemaLocation":
+              "http://www.garmin.com/xmlschemas/TrainingCenterDatabase/v2 http://www.garmin.com/xmlschemas/TrainingCenterDatabasev2.xsd",
+            //"@xmlns:ns5": "http://www.garmin.com/xmlschemas/ActivityGoals/v1",
+            //"@xmlns:ns4": "http://www.garmin.com/xmlschemas/ProfileExtension/v1",
+            //"@xmlns:ns3": "http://www.garmin.com/xmlschemas/ActivityExtension/v2",
+            //"@xmlns:ns2": "http://www.garmin.com/xmlschemas/UserProfile/v2",
+            "@xmlns":
+              "http://www.garmin.com/xmlschemas/TrainingCenterDatabase/v2",
+            "@xmlns:xsi": "http://www.w3.org/2001/XMLSchema-instance",
+            Courses: { Course: [] },
+            Author: {
+              "@xsi:type": "Application_t",
+              Name: "https://route.emacberry.com",
+              Build: {
+                Version: {
+                  VersionMajor: "0",
+                  VersionMinor: "4",
+                  BuildMajor: "1",
+                  BuildMinor: "0"
+                },
+                Type: "Release",
+                Time: "Jan 26 2020, 10:00:00",
+                Builder: "mcp"
+              },
+              LangID: "DE",
+              PartNumber: "EMA-CBERR-Y0" // The formatted XXX-XXXXX-XX Garmin part number of a PC application
+            }
+          }
+        };
+
+        var speed = speedInKmh / 3.6; // in m/sec (8km/h)
+        var coursObj = {
+          Name: name,
+          Lap: {
+            TotalTimeSeconds: "",
+            DistanceMeters: metadata[metadata.length - 1].distance,
+            BeginPosition: {
+              LatitudeDegrees: metadata[0].coords[0],
+              LongitudeDegrees: metadata[0].coords[1]
+            },
+            EndPosition: {
+              LatitudeDegrees: metadata[metadata.length - 1].coords[0],
+              LongitudeDegrees: metadata[metadata.length - 1].coords[1]
+            },
+            Intensity: "Active"
+          },
+          Track: {
+            Trackpoint: []
+          } /*,
+          Creator: {
+            "@xsi:type": "Application_t",
+            Name: "https://route.emacberry.com",
+            Build: {
+              Version: {
+                VersionMajor: "0",
+                VersionMinor: "4",
+                BuildMajor: "1",
+                BuildMinor: "0"
+              },
+              Type: "Release",
+              Time: "Jan 26 2020, 10:00:00",
+              Builder: "mcp"
+            },
+            LangID: "DE",
+            PartNumber: "EMA-CBERR-Y0" // The formatted XXX-XXXXX-XX Garmin part number of a PC application
+          }*/
+        };
+
+        var lastDistance = 0;
+        var totalTimeInSec = 0;
+        metadata.forEach(function meta(data, i) {
+          if (data.distance !== undefined) {
+            var deltaDistanceInMeter = data.distance - lastDistance;
+            var timeDelta = deltaDistanceInMeter / speed;
+            totalTimeInSec = totalTimeInSec + timeDelta;
+
+            var hour = parseInt(totalTimeInSec / 3600);
+            var totalTimeInSecSubHour = totalTimeInSec - hour * 3600;
+            var hourS = hour + "";
+
+            var minS = parseInt(totalTimeInSecSubHour / 60) + "";
+            var secS = parseInt(totalTimeInSecSubHour % 60) + "";
+            var msS = (totalTimeInSecSubHour % 60).toFixed(3) + "";
+
+            if (hourS.length == 1) {
+              hourS = "0" + hourS;
+            }
+            if (minS.length == 1) {
+              minS = "0" + minS;
+            }
+            if (secS.length == 1) {
+              msS = "0" + msS;
+            }
+            var tp = {
+              Time: "2010-01-01T" + hourS + ":" + minS + ":" + msS + "Z",
+              Position: {
+                LatitudeDegrees: data.coords[0],
+                LongitudeDegrees: data.coords[1]
+              }
+            };
+            if (
+              data.heights !== undefined &&
+              data.heights.height !== undefined
+            ) {
+              tp.AltitudeMeters = data.heights.height;
+            }
+            tp.DistanceMeters = data.distance;
+            lastDistance = data.distance;
+            coursObj.Track.Trackpoint.push(tp);
+          }
+        });
+        coursObj.Lap.TotalTimeSeconds = totalTimeInSec.toFixed(1);
+        tcx.TrainingCenterDatabase.Courses.Course.push(coursObj);
+
+        JXON.config({ attrPrefix: "@" });
+        var tcx_str = JXON.stringify(tcx);
+        return '<?xml version="1.0" encoding="UTF-8"?>' + tcx_str;
+      };
+
       let orsExportFactory = {};
       /**
        * Export any vector element on the map to file
@@ -87,6 +211,7 @@ angular
        */
       orsExportFactory.exportFile = (
         geometry,
+        metadata,
         geomType,
         options,
         format,
@@ -109,6 +234,9 @@ angular
           case "kml":
             geojsonData = L.polyline(geometry).toGeoJSON();
             exportData = tokml(geojsonData);
+            break;
+          case "tcx":
+            exportData = totcx(filename, metadata, options.speedInKmh);
             break;
           case "rawjson":
             // removing nodes from the geometry data that is for sure not needed
