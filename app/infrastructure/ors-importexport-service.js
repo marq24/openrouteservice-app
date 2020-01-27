@@ -76,19 +76,16 @@ angular
         );
       };
 
-      // took from togpx code - and just adjusted a little...
-      let totcx = (name, metadata, speedInKmh) => {
-        // make tcx object
-        var tcx = {
+      // create a simple Course TCX file (MARQ24)
+      // see https://www8.garmin.com/xmlschemas/TrainingCenterDatabasev2.xsd
+      let toTcx = (name, speedInKmPerH) => {
+        let version = "0.4.1";
+        let pointInformation = orsRouteService.data.features[orsRouteService.getCurrentRouteIdx()].point_information;
+        let [majorV, minorV, patchV] = version.split(".");
+        let tcx = {
           TrainingCenterDatabase: {
-            "@xsi:schemaLocation":
-              "http://www.garmin.com/xmlschemas/TrainingCenterDatabase/v2 http://www.garmin.com/xmlschemas/TrainingCenterDatabasev2.xsd",
-            //"@xmlns:ns5": "http://www.garmin.com/xmlschemas/ActivityGoals/v1",
-            //"@xmlns:ns4": "http://www.garmin.com/xmlschemas/ProfileExtension/v1",
-            //"@xmlns:ns3": "http://www.garmin.com/xmlschemas/ActivityExtension/v2",
-            //"@xmlns:ns2": "http://www.garmin.com/xmlschemas/UserProfile/v2",
-            "@xmlns":
-              "http://www.garmin.com/xmlschemas/TrainingCenterDatabase/v2",
+            "@xsi:schemaLocation": "http://www.garmin.com/xmlschemas/TrainingCenterDatabase/v2 http://www.garmin.com/xmlschemas/TrainingCenterDatabasev2.xsd",
+            "@xmlns": "http://www.garmin.com/xmlschemas/TrainingCenterDatabase/v2",
             "@xmlns:xsi": "http://www.w3.org/2001/XMLSchema-instance",
             Courses: { Course: [] },
             Author: {
@@ -96,9 +93,9 @@ angular
               Name: "https://route.emacberry.com",
               Build: {
                 Version: {
-                  VersionMajor: "0",
-                  VersionMinor: "4",
-                  BuildMajor: "1",
+                  VersionMajor: majorV,
+                  VersionMinor: minorV,
+                  BuildMajor: patchV,
                   BuildMinor: "0"
                 },
                 Type: "Release",
@@ -111,92 +108,50 @@ angular
           }
         };
 
-        var speed = speedInKmh / 3.6; // in m/sec (8km/h)
-        var coursObj = {
+        let speedInMPerS = speedInKmPerH / 3.6; // need to convert in m per sec
+        let courseObj = {
           Name: name,
           Lap: {
             TotalTimeSeconds: "",
-            DistanceMeters: metadata[metadata.length - 1].distance,
+            DistanceMeters: pointInformation[pointInformation.length - 1].distance,
             BeginPosition: {
-              LatitudeDegrees: metadata[0].coords[0],
-              LongitudeDegrees: metadata[0].coords[1]
+              LatitudeDegrees: pointInformation[0].coords[0],
+              LongitudeDegrees: pointInformation[0].coords[1]
             },
             EndPosition: {
-              LatitudeDegrees: metadata[metadata.length - 1].coords[0],
-              LongitudeDegrees: metadata[metadata.length - 1].coords[1]
+              LatitudeDegrees: pointInformation[pointInformation.length - 1].coords[0],
+              LongitudeDegrees: pointInformation[pointInformation.length - 1].coords[1]
             },
             Intensity: "Active"
           },
-          Track: {
-            Trackpoint: []
-          } /*,
-          Creator: {
-            "@xsi:type": "Application_t",
-            Name: "https://route.emacberry.com",
-            Build: {
-              Version: {
-                VersionMajor: "0",
-                VersionMinor: "4",
-                BuildMajor: "1",
-                BuildMinor: "0"
-              },
-              Type: "Release",
-              Time: "Jan 26 2020, 10:00:00",
-              Builder: "mcp"
-            },
-            LangID: "DE",
-            PartNumber: "EMA-CBERR-Y0" // The formatted XXX-XXXXX-XX Garmin part number of a PC application
-          }*/
+          Track: { Trackpoint: [] }
         };
-
-        var lastDistance = 0;
-        var totalTimeInSec = 0;
-        metadata.forEach(function meta(data, i) {
+        let duration;
+        for (const data of pointInformation) {
           if (data.distance !== undefined) {
-            var deltaDistanceInMeter = data.distance - lastDistance;
-            var timeDelta = deltaDistanceInMeter / speed;
-            totalTimeInSec = totalTimeInSec + timeDelta;
-
-            var hour = parseInt(totalTimeInSec / 3600);
-            var totalTimeInSecSubHour = totalTimeInSec - hour * 3600;
-            var hourS = hour + "";
-
-            var minS = parseInt(totalTimeInSecSubHour / 60) + "";
-            var secS = parseInt(totalTimeInSecSubHour % 60) + "";
-            var msS = (totalTimeInSecSubHour % 60).toFixed(3) + "";
-
-            if (hourS.length == 1) {
-              hourS = "0" + hourS;
-            }
-            if (minS.length == 1) {
-              minS = "0" + minS;
-            }
-            if (secS.length == 1) {
-              msS = "0" + msS;
-            }
-            var tp = {
-              Time: "2010-01-01T" + hourS + ":" + minS + ":" + msS + "Z",
+            duration = data.distance / speedInMPerS;
+            const seconds = duration.toFixed(3) || 0;
+            const milliSeconds = seconds.split(".")[1] || 0;
+            let durationDate = new Date(2010, 0, 1, 12, 0, seconds, milliSeconds);
+            let tp = {
+              Time: durationDate.toISOString(),
               Position: {
                 LatitudeDegrees: data.coords[0],
                 LongitudeDegrees: data.coords[1]
               }
             };
-            if (
-              data.heights !== undefined &&
-              data.heights.height !== undefined
-            ) {
+            if (data.heights && data.heights.height !== undefined) {
               tp.AltitudeMeters = data.heights.height;
             }
             tp.DistanceMeters = data.distance;
-            lastDistance = data.distance;
-            coursObj.Track.Trackpoint.push(tp);
+            courseObj.Track.Trackpoint.push(tp);
           }
-        });
-        coursObj.Lap.TotalTimeSeconds = totalTimeInSec.toFixed(1);
-        tcx.TrainingCenterDatabase.Courses.Course.push(coursObj);
+        }
+        courseObj.Lap.TotalTimeSeconds = duration.toFixed(1);
+        tcx.TrainingCenterDatabase.Courses.Course.push(courseObj);
 
         JXON.config({ attrPrefix: "@" });
-        var tcx_str = JXON.stringify(tcx);
+        const tcx_str = JXON.stringify(tcx);
         return '<?xml version="1.0" encoding="UTF-8"?>' + tcx_str;
       };
 
@@ -211,7 +166,6 @@ angular
        */
       orsExportFactory.exportFile = (
         geometry,
-        metadata,
         geomType,
         options,
         format,
@@ -236,7 +190,7 @@ angular
             exportData = tokml(geojsonData);
             break;
           case "tcx":
-            exportData = totcx(filename, metadata, options.speedInKmh);
+            exportData = toTcx(filename, options.speedInKmh);
             break;
           case "rawjson":
             // removing nodes from the geometry data that is for sure not needed
