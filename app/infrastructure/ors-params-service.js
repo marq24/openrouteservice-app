@@ -16,7 +16,7 @@ angular.module("orsApp.params-service", []).factory("orsParamsService", [
       const settings = {
         waypoints: [],
         profile: {
-          type: "Car",
+          type: "BicycleRacer",
           options: {
             analysis_options: {},
             avoidables: {},
