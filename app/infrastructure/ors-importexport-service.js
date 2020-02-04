@@ -192,12 +192,11 @@ angular
               seconds,
               milliSeconds
             );
-            let turnType = step.type;
             let alternativeName;
             let pointType;
 
             // see org.heigit.ors.routing.instructions.InstructionType
-            switch (turnType) {
+            switch (step.type) {
               case 0:
               case 2:
               case 4:
