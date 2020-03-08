@@ -18,6 +18,7 @@ angular.module("orsApp.params-service", []).factory("orsParamsService", [
         profile: {
           type: "BicycleRacer",
           options: {
+            weight: "Fastest",
             analysis_options: {},
             avoidables: {},
             borders: {},
