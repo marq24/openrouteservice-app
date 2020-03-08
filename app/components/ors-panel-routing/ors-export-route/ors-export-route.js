@@ -1,7 +1,8 @@
 angular
   .module("orsApp.ors-exportRoute-controls", [])
   .component("orsExportRouteControls", {
-    templateUrl: "components/ors-panel-routing/ors-export-route/ors-export-route.html",
+    templateUrl:
+      "components/ors-panel-routing/ors-export-route/ors-export-route.html",
     controller: [
       "orsExportFactory",
       "orsRouteService",

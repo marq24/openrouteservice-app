@@ -80,7 +80,7 @@ angular
 
       // create a simple Course TCX file (MARQ24)
       // see https://www8.garmin.com/xmlschemas/TrainingCenterDatabasev2.xsd
-      let toTcx = (name, speedInKmPerH) => {
+      let toTcx = (name, speedInKmPerH, inclTurnInstructions) => {
         let version = "0.4.2";
         let pointInformation =
           orsRouteService.data.features[orsRouteService.getCurrentRouteIdx()]
@@ -168,108 +168,110 @@ angular
         }
         courseObj.Lap.TotalTimeSeconds = duration.toFixed(1);
 
-        // adding now the navigation info...
-        let turnInstructions =
-          orsRouteService.data.features[orsRouteService.getCurrentRouteIdx()]
-            .properties.segments;
+        if (inclTurnInstructions) {
+          // adding now the navigation info...
+          let turnInstructions =
+            orsRouteService.data.features[orsRouteService.getCurrentRouteIdx()]
+              .properties.segments;
 
-        // for the timing we need to sum up the distance of the steps...
-        // (to be able to calculate the time of the 'CoursePoint')
-        let totalDistance = 0;
-        let segmentCount = 0;
-        for (const segment of turnInstructions) {
-          for (const step of segment.steps) {
-            totalDistance = totalDistance + step.distance;
-            duration = totalDistance / speedInMPerS;
-            const seconds = duration.toFixed(3) || 0;
-            const milliSeconds = seconds.split(".")[1] || 0;
-            let durationDate = new Date(
-              2010,
-              0,
-              1,
-              12,
-              0,
-              seconds,
-              milliSeconds
-            );
-            let alternativeName;
-            let pointType;
+          // for the timing we need to sum up the distance of the steps...
+          // (to be able to calculate the time of the 'CoursePoint')
+          let totalDistance = 0;
+          let segmentCount = 0;
+          for (const segment of turnInstructions) {
+            for (const step of segment.steps) {
+              totalDistance = totalDistance + step.distance;
+              duration = totalDistance / speedInMPerS;
+              const seconds = duration.toFixed(3) || 0;
+              const milliSeconds = seconds.split(".")[1] || 0;
+              let durationDate = new Date(
+                2010,
+                0,
+                1,
+                12,
+                0,
+                seconds,
+                milliSeconds
+              );
+              let alternativeName;
+              let pointType;
 
-            // see org.heigit.ors.routing.instructions.InstructionType
-            switch (step.type) {
-              case 0:
-              case 2:
-              case 4:
-              case 12:
-                pointType = "Left";
-                break;
+              // see org.heigit.ors.routing.instructions.InstructionType
+              switch (step.type) {
+                case 0:
+                case 2:
+                case 4:
+                case 12:
+                  pointType = "Left";
+                  break;
 
-              case 1:
-              case 3:
-              case 5:
-              case 13:
-                pointType = "Right";
-                break;
+                case 1:
+                case 3:
+                case 5:
+                case 13:
+                  pointType = "Right";
+                  break;
 
-              case 6:
-                // Continue...
-                pointType = "Straight";
-                break;
+                case 6:
+                  // Continue...
+                  pointType = "Straight";
+                  break;
 
-              case 7:
-                pointType = "Right"; // not valid in LeftSide Traffic countries...
-                alternativeName =
-                  $translate.instant("TURN_INFO_RDB_EXIT") +
-                  " " +
-                  step.exit_number;
-                break;
+                case 7:
+                  pointType = "Right"; // not valid in LeftSide Traffic countries...
+                  alternativeName =
+                    $translate.instant("TURN_INFO_RDB_EXIT") +
+                    " " +
+                    step.exit_number;
+                  break;
 
-              case 9:
-                pointType = "Generic";
-                alternativeName = $translate.instant("TURN_INFO_UTURN");
-                break;
-
-              case 10: // finish
-              case 11: // depart
-                if (
-                  (turnType == 11 && segmentCount == 0) ||
-                  (turnType == 10 && segmentCount == turnInstructions.length)
-                ) {
+                case 9:
                   pointType = "Generic";
-                }
-                // start and end...
-                break;
+                  alternativeName = $translate.instant("TURN_INFO_UTURN");
+                  break;
 
-              default:
-                break;
+                case 10: // finish
+                case 11: // depart
+                  if (
+                    (step.type == 11 && segmentCount == 0) ||
+                    (step.type == 10 && segmentCount == turnInstructions.length)
+                  ) {
+                    pointType = "Generic";
+                  }
+                  // start and end...
+                  break;
+
+                default:
+                  break;
+              }
+
+              if (pointType != undefined) {
+                // the index of the coordinate of the "step" start...
+                let coordIndex = step.way_points[0];
+
+                // Turn left onto <b>Goethestraße</b> || Enter the roundabout and take the 2nd exit onto <b>Platzstraße, K 9</b>
+                // get rid of the possible present HTML tags...
+                let inst = step.instruction.replace(/<[^>]+>/g, "").trim();
+
+                // adding the Turn-Instructions...
+                let coursePointObj = {
+                  Name:
+                    alternativeName != undefined
+                      ? alternativeName
+                      : inst.substr(0, 10).trim(),
+                  Time: durationDate.toISOString(),
+                  Position: {
+                    LatitudeDegrees: pointInformation[coordIndex].coords[0],
+                    LongitudeDegrees: pointInformation[coordIndex].coords[1]
+                  },
+                  PointType: pointType,
+                  Notes: inst
+                };
+                courseObj.CoursePoint.push(coursePointObj);
+              }
             }
-
-            if (pointType != undefined) {
-              // the index of the coordinate of the "step" start...
-              let coordIndex = step.way_points[0];
-
-              // Turn left onto <b>Goethestraße</b> || Enter the roundabout and take the 2nd exit onto <b>Platzstraße, K 9</b>
-              // get rid of the possible present HTML tags...
-              let inst = step.instruction.replace(/<[^>]+>/g, "").trim();
-
-              // adding the Turn-Instructions...
-              let coursePointObj = {
-                Name:
-                  alternativeName != undefined
-                    ? alternativeName
-                    : inst.substr(0, 10).trim(),
-                Time: durationDate.toISOString(),
-                Position: {
-                  LatitudeDegrees: pointInformation[coordIndex].coords[0],
-                  LongitudeDegrees: pointInformation[coordIndex].coords[1]
-                },
-                PointType: pointType,
-                Notes: inst
-              };
-              courseObj.CoursePoint.push(coursePointObj);
-            }
+            segmentCount++;
           }
-          segmentCount++;
         }
         tcx.TrainingCenterDatabase.Courses.Course.push(courseObj);
 
@@ -313,7 +315,11 @@ angular
             exportData = tokml(geojsonData);
             break;
           case "tcx":
-            exportData = toTcx(filename, options.speedInKmh);
+            exportData = toTcx(
+              filename,
+              options.speedInKmh,
+              options.instructions
+            );
             break;
           case "rawjson":
             // removing nodes from the geometry data that is for sure not needed
