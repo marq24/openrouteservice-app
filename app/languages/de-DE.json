@@ -233,5 +233,12 @@
     "ROUNDTRIP_DO": "Rundweg generieren",
     "PACE_SPEED_INKMH": "Pace in km/h",
     "TURN_INFO_RDB_EXIT": "Ausfahrt",
-    "TURN_INFO_UTURN": "Kehrtwende"
+    "TURN_INFO_UTURN": "Kehrtwende",
+
+    "PUSH_LINK": "Strecke Pushen",
+    "PUSH_HINT": "This will send the route to emacberry.com so that it can be picked up directly from GPSLogger&nbsp;II PathManager. In order that you can pick up the route from your mobile device, your current location is required/will be requested. Your location will be stored temporary without any connected to any personal data!",
+    "PUSH": "Übermitteln",
+    "START_GPSLOGGER_MSG": "Sie können nun den GPSLogger starten und über das Menu des Strecken Managers diese Route abholen!",
+    "PUSH_FAILED_MSG": "Bei der Übermittlung der Route ist ein Fehler aufgetreten - bitte versuchen Sie es zu einem späteren Zeitpunkt erneut.",
+    "PUSH_NO_LOCATION_MSG": "Damit die Route vom GPSLogger auf Ihreme Mobilgerät abgeholt werden kann, wird Ihre aktuelle Position benötigt. Bitte gestatten Sie ihrem Browser das Abrufen Ihrer Position."
 }

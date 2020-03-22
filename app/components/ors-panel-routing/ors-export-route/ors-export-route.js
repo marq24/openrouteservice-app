@@ -13,11 +13,11 @@ angular
         ctrl.toGpx = true;
         ctrl.speedInKmh = 10.5;
         ctrl.filename = "ors-export-linestring";
-        ctrl.gpxOptShow = true;
+        ctrl.gpxOptShow = false;
         ctrl.tcxOptShow = false;
         ctrl.kmlOptShow = false;
         ctrl.gmlOptShow = false;
-        ctrl.geojsonOptShow = false;
+        ctrl.geojsonOptShow = true;
         ctrl.fileFormat = [
           {
             text: "GPSLogger II Route (.json)",
