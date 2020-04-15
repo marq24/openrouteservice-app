@@ -12,6 +12,30 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Deprecated
 ### Removed-->
 
+## [v0.5.0] - 2020-03-26
+
+### Removed
+- support for node 6 & 7. Please use version 8 or above
+
+## [v0.4.3] - 2020-03-26
+
+### Added
+- deviation tolerance during route import ([#325](https://github.com/GIScience/openrouteservice-app/issues/325))
+    - set lower value for more waypoints/accuracy
+- alternative route feature ([#319](https://github.com/GIScience/openrouteservice-app/issues/319))
+    - activate in settings, click route or sidebar entry to switch route
+    - only for routes with 2 points (start & end) below 100km
+    - default values for `weight-factor` and `share-factor` used
+- possibility to mock the ors response for development purpose
+    - uncomment all instances of "mock" to enable
+
+### Fixed
+- no extra info settings for subgroups ([#328](https://github.com/GIScience/openrouteservice-app/issues/328))
+
+### Changed
+- maxZoom of all base maps to 18 ([#311](https://github.com/GIScience/openrouteservice-app/issues/311))
+- route processing logic to increase performance ([#320](https://github.com/GIScience/openrouteservice-app/issues/320))
+
 ## [v0.4.2] - 2020-01-30
 
 ### Added

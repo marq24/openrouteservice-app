@@ -80,8 +80,8 @@ angular
 
       // create a simple Course TCX file (MARQ24)
       // see https://www8.garmin.com/xmlschemas/TrainingCenterDatabasev2.xsd
-      let toTcx = (name, speedInKmPerH, inclTurnInstructions) => {
-        let version = "0.4.2";
+      let toTcx = (name, speedInKmPerH) => {
+        let version = "0.5.0";
         let pointInformation =
           orsRouteService.data.features[orsRouteService.getCurrentRouteIdx()]
             .point_information;
@@ -324,7 +324,7 @@ angular
           case "rawjson":
             // removing nodes from the geometry data that is for sure not needed
             // by 3'rd party...
-            delete geometry.extras;
+            /*delete geometry.extras;
             delete geometry.geometryRaw;
             delete geometry.$$hashKey;
 
@@ -332,9 +332,14 @@ angular
             // So I am not 100% sure if this should be included or not in the exported
             // json data - personally I do not have any need for this info on my mobile
             // client - that's why IMHO it can/should be removed from the raw output
-            delete geometry.point_information;
-
-            exportData = JSON.stringify(geometry);
+            delete geometry.point_information;*/
+            let jsonOutput = {
+              bbox: geometry.bbox,
+              geometry: geometry.geometry,
+              properties: geometry.properties,
+              type: geometry.type
+            };
+            exportData = JSON.stringify(jsonOutput);
             extension = ".json";
             break;
           case "geojson":
