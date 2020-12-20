@@ -106,7 +106,9 @@ angular.module("orsApp").directive("orsMap", () => {
           }
         );
         const mapbox = L.tileLayer(
-          "http://{s}.tiles.mapbox.com/v4/mapbox.streets/{z}/{x}/{y}.png?access_token=pk.eyJ1Ijoic3RyYXZhIiwiYSI6IlpoeXU2U0UifQ.c7yhlZevNRFCqHYm6G6Cyg",
+          //"http://{s}.tiles.mapbox.com/v4/mapbox.streets/{z}/{x}/{y}.png?access_token=pk.eyJ1Ijoic3RyYXZhIiwiYSI6IlpoeXU2U0UifQ.c7yhlZevNRFCqHYm6G6Cyg",
+          "https://api.mapbox.com/styles/v1/mapbox/streets-v11/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1Ijoic3RyYXZhIiwiYSI6IlpoeXU2U0UifQ.c7yhlZevNRFCqHYm6G6Cyg",
+          //"https://api.mapbox.com/styles/v1/mapbox/satellite-streets-v11/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1Ijoic3RyYXZhIiwiYSI6IlpoeXU2U0UifQ.c7yhlZevNRFCqHYm6G6Cyg",
           {
             attribution: "Mapdata &copy; 2020 MapBox.com",
             subdomains: "abc",
@@ -126,7 +128,7 @@ angular.module("orsApp").directive("orsMap", () => {
           }
         );
         const googlesat = L.tileLayer(
-          "http://khms{s}.googleapis.com/kh?v=863&x={x}&y={y}&z={z}&",
+          "http://khms{s}.googleapis.com/kh?v=887&x={x}&y={y}&z={z}&",
           {
             attribution: "Mapdata &copy; 2020 Google",
             subdomains: "0123",
