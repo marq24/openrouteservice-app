@@ -10,7 +10,7 @@
  *|------------------------------------------------------------------------------------*/
 /**
  * @author: Amandus Butzer, amandus@openrouteservice.org, Timothy Ellersiek, timothy@openrouteservice.org
- * @version: 0.4.2
+ * @version: 0.5.0
  */
 (function(searchString, position) {
   fetchData().then(bootstrapApplication);
@@ -82,6 +82,7 @@
         ENV,
         orsApikeyFactory,
         weathercheck
+        // mockResponse // uncomment to mock response using mock.js constant
       ) {
         return {
           request: function(config) {

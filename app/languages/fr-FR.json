@@ -231,6 +231,15 @@
     "ROUNDTRIP": "Round trip (experimental)",
     "ROUNDTRIP_DO": "Do round trip",
     "PACE_SPEED_INKMH": "Pace in km/h",
+    "IMPORT_DEVIATION_TOLERANCE": "Deviation tolerance",
+    "LOCAL_ALT_ROUTE": "Alternative route (slow!, only for routes below 100km)".
     "TURN_INFO_RDB_EXIT": "Exit",
-    "TURN_INFO_UTURN": "U-Turn"
+    "TURN_INFO_UTURN": "U-Turn",
+
+    "PUSH_LINK": "Push Route",
+    "PUSH_HINT": "This will send the route to emacberry.com so that it can be picked up directly from GPSLogger&nbsp;II PathManager. In order that you can pick up the route from your mobile device, your current location is required/will be requested. Your location will be stored temporary without any connected to any personal data!",
+    "PUSH": "Push",
+    "START_GPSLOGGER_MSG": "Start now GPSLogger and PULL the Route via the PathManager Menu",
+    "PUSH_FAILED_MSG": "Something went wrong while submitting the Route to the emacberry.com backend - sorry - please try again later.",
+    "PUSH_NO_LOCATION_MSG": "This function require your current location in order to receive the route on your mobile device. Please make sure that the browser can get a valid location."
 }

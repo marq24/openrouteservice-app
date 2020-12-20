@@ -243,6 +243,56 @@ angular.module("orsApp").directive("orsMap", () => {
             weight: 6
           }
         });
+        $scope.alternativeRouteLayers = {};
+        // separated hoverLine is only used for active route
+        $scope.hoverRouteLayer = L.featureGroup
+          .subGroup($scope.mapModel.geofeatures.layerRouteLines)
+          .addTo($scope.mapModel.map);
+        $scope.$on("activeRouteChanged", (f, idx) => {
+          if (orsRouteService.data) {
+            // set/switch layer order and style to (de)activate routes
+            for (let [key, value] of Object.entries(
+              $scope.alternativeRouteLayers
+            )) {
+              if (key === idx.toString()) {
+                value.bringToFront();
+                Object.values(value._layers)[1]
+                  .setStyle(lists.layerStyles.route())
+                  .closeTooltip();
+              } else {
+                Object.values(value._layers)[1]
+                  .setStyle(lists.layerStyles.routeAlternative())
+                  .closeTooltip();
+              }
+            }
+            // create hover line for active route
+            let currentRoute = orsRouteService.data.features[idx];
+            const routeHover = orsObjectsFactory.createMapAction(
+              41,
+              lists.layers[1],
+              currentRoute.geometry,
+              undefined,
+              lists.layerStyles.routeHovering(),
+              {
+                pointInformation: currentRoute.point_information
+              }
+            );
+            orsMapFactory.mapServiceSubject.onNext(routeHover);
+            // add heightgraph for active route
+            if ($scope.heightGraphData.length === 0) {
+              let data = orsRouteService.data;
+              for (let route of data.features) {
+                if (route.geometry[0].length === 3) {
+                  $scope.heightGraphData.push(
+                    orsRouteService.processHeightgraphData(route)
+                  );
+                }
+              }
+            }
+            orsRouteService.DeColor();
+            orsRouteService.addHeightgraph($scope.heightGraphData[idx]);
+          }
+        });
 
         /**
          * Listens to changeOptions event from ors-header.js
@@ -285,13 +335,15 @@ angular.module("orsApp").directive("orsMap", () => {
                 ) {
                   if (orsRouteService.data.features.length > 0) {
                     let data = orsRouteService.data;
-                    let route = data.features[idx];
-                    if (route.geometry[0][0].length === 3) {
-                      const hgGeojson = orsRouteService.processHeightgraphData(
-                        route
-                      );
-                      orsRouteService.addHeightgraph(hgGeojson);
+                    $scope.heightGraphData = [];
+                    for (let route of data.features) {
+                      if (route.geometry[0].length === 3) {
+                        $scope.heightGraphData.push(
+                          orsRouteService.processHeightgraphData(route)
+                        );
+                      }
                     }
+                    orsRouteService.addHeightgraph($scope.heightGraphData[idx]);
                   }
                 } else {
                   $scope.hg.remove();
@@ -304,7 +356,7 @@ angular.module("orsApp").directive("orsMap", () => {
           }
           if (setting === "distanceMarkers") {
             // get Leaflet route object
-            let lines = $scope.mapModel.geofeatures.layerRouteLines["_layers"];
+            let lines = $scope.mapModel.geofeatures.layerRouteLines._layers;
             let route = lines[Object.keys(lines)[0]];
 
             if (options.distanceMarkers === true) {
@@ -644,7 +696,8 @@ angular.module("orsApp").directive("orsMap", () => {
         //$scope.mapModel.map.on('overlayadd', emitMapChangeOverlay);
         //$scope.mapModel.map.on('overlayremove', emitMapChangeOverlay);
         $scope.mapModel.map.on("zoomend", e => {
-          let layerRouteLines = $scope.mapModel.geofeatures.layerRouteLines;
+          // TODO CHECK MERGE
+          //let layerRouteLines = $scope.mapModel.geofeatures.layerRouteLines;
           const currentZoom = $scope.mapModel.map.getZoom();
           if (currentZoom >= 15) {
             d3.select($scope.mapModel.map.getPanes().overlayPane).style(
@@ -1149,13 +1202,48 @@ angular.module("orsApp").directive("orsMap", () => {
               offset: 1000,
               cssClass: "ors-marker-dist",
               iconSize: [18, 18]
-            }
+            },
+            currentRouteIndex: actionPackage.currentRouteIndex
           });
           polyLine.on("addDistanceMarkers", () => {
             polyLine.addDistanceMarkers();
           });
           polyLine.on("removeDistanceMarkers", polyLine.removeDistanceMarkers);
-          polyLine.addTo($scope.mapModel.geofeatures[actionPackage.layerCode]);
+          // add route lines to dynamic subgroup which hold maximum 2 layers (white padding, colored route)
+          if (actionPackage.layerCode === "layerRouteLines") {
+            if (
+              !Object.keys($scope.alternativeRouteLayers).includes(
+                actionPackage.currentRouteIndex.toString()
+              )
+            ) {
+              $scope.alternativeRouteLayers[
+                actionPackage.currentRouteIndex
+              ] = L.featureGroup.subGroup(
+                $scope.mapModel.geofeatures[actionPackage.layerCode]
+              );
+              $scope.alternativeRouteLayers[
+                actionPackage.currentRouteIndex
+              ].addTo($scope.mapModel.map);
+            }
+            // clear subgroup if there are the 2 layers from the last routing request
+            if (
+              $scope.alternativeRouteLayers[
+                actionPackage.currentRouteIndex
+              ].getLayers().length === 2
+            ) {
+              $scope.alternativeRouteLayers[
+                actionPackage.currentRouteIndex
+              ].clearLayers();
+            }
+            $scope.alternativeRouteLayers[
+              actionPackage.currentRouteIndex
+            ].addLayer(polyLine);
+          } else {
+            // default: add to general layer
+            polyLine.addTo(
+              $scope.mapModel.geofeatures[actionPackage.layerCode]
+            );
+          }
           polyLine.setStyle(actionPackage.style);
         };
         /**
@@ -1163,6 +1251,9 @@ angular.module("orsApp").directive("orsMap", () => {
          * @param {Object} actionPackage - The action actionPackage
          */
         $scope.addPolyline = actionPackage => {
+          if (actionPackage.currentRouteIndex === 0) {
+            $scope.heightGraphData = [];
+          }
           $scope.mapModel.map.closePopup();
           const polyLine = L.polyline(actionPackage.geometry, {
             index:
@@ -1172,16 +1263,82 @@ angular.module("orsApp").directive("orsMap", () => {
             interactive: true,
             distanceMarkers: {
               lazy: true
+            },
+            currentRouteIndex: actionPackage.currentRouteIndex
+          });
+          polyLine.bubblingMouseEvents = false;
+          // click inactive route geomgetry to activate
+          polyLine.on("click", e => {
+            orsRouteService.setCurrentRouteIdx(
+              polyLine.options.currentRouteIndex
+            );
+            $rootScope.$broadcast(
+              "activeRouteChanged",
+              polyLine.options.currentRouteIndex
+            );
+            L.DomEvent.stopPropagation(e);
+          });
+          // distance and duration popup comparing to 1. route
+          polyLine.on("mouseover", e => {
+            let idx = polyLine.options.currentRouteIndex;
+            let {
+              properties: {
+                summary: {
+                  duration: dur,
+                  distance: dis,
+                  durationDelta: durD,
+                  distanceDelta: disD
+                }
+              }
+            } = orsRouteService.data.features[idx];
+            let popupContent = `<div>
+            <span>
+              <i class="fa fa-clock-o">
+              </i>
+            </span>
+              <span>
+                ${$filter("duration")(dur)}
+              </span>`;
+            if (durD) {
+              popupContent += `<span>
+                (${durD > 0 ? "+ " : "- "}${$filter("duration")(durD)})
+                </span>`;
             }
-            //bubblingMouseEvents: true
-          }).addTo($scope.mapModel.geofeatures[actionPackage.layerCode]);
+            popupContent += `</div>
+              <div>
+            <span>
+              <i class="fa fa-arrows-h">
+              </i>
+            </span>
+              <span>
+                ${$filter("distance")(dis)}
+              </span>`;
+            if (disD) {
+              popupContent += `<span>
+              (${disD > 0 ? "+" : ""}${$filter("distance")(disD)})
+            </span>`;
+            }
+            popupContent += "</div>";
+            polyLine
+              .bindTooltip(popupContent, {
+                direction: "right",
+                offset: [10, 0]
+              })
+              .openTooltip(e.latlng);
+          });
+          polyLine.on("mouseout mouseup", () => {
+            polyLine.unbindTooltip(); // needs unbind instead of close or popup will remain opened
+          });
+          $scope.alternativeRouteLayers[
+            actionPackage.currentRouteIndex
+          ].addLayer(polyLine);
           polyLine.setStyle(actionPackage.style);
         };
         /*  copied from https://github.com/makinacorpus/Leaflet.GeometryUtil/blob/master/src/leaflet.geometryutil.js
                     @param {L.PolyLine} polyline Polyline on which the latlng will be search
                     @param {L.LatLng} latlng The position to search
                 */
-        $scope.locateOnLineCopiedFromGeometryUtil = (map, polyline, latlng) => {
+        $scope.locateClosestPointOnLine = (map, polyline, latlng) => {
           const latlngs = polyline.getLatLngs();
           if (latlng.equals(latlngs[0])) return 0.0;
           if (latlng.equals(latlngs[latlngs.length - 1])) return 1.0;
@@ -1215,12 +1372,13 @@ angular.module("orsApp").directive("orsMap", () => {
           };
         };
         $scope.addPolylineHover = actionPackage => {
+          $scope.hoverRouteLayer.clearLayers();
           $scope.mapModel.map.closePopup();
           $scope.polylineZone = L.polyline(actionPackage.geometry, {
             distanceMarkers: {
               lazy: true
             }
-          }).addTo($scope.mapModel.geofeatures[actionPackage.layerCode]);
+          }).addTo($scope.hoverRouteLayer);
           $scope.polylineZone.setStyle({
             color: "#FFF",
             weight: 100,
@@ -1237,7 +1395,7 @@ angular.module("orsApp").directive("orsMap", () => {
             distanceMarkers: {
               lazy: true
             }
-          }).addTo($scope.mapModel.geofeatures[actionPackage.layerCode]);
+          }).addTo($scope.hoverRouteLayer);
           $scope.hoverPolyLine.setStyle(actionPackage.style);
           $scope.pointList = actionPackage.extraInformation.pointInformation;
           $scope.hoverPolyLine.on("mousemove", e => {
@@ -1258,7 +1416,7 @@ angular.module("orsApp").directive("orsMap", () => {
             $scope.hoverPoint.removeFrom(
               $scope.mapModel.geofeatures.layerRouteDrag
             );
-          let snappedPosition = $scope.locateOnLineCopiedFromGeometryUtil(
+          let snappedPosition = $scope.locateClosestPointOnLine(
             mapModel.map,
             hoverPolyLine,
             latlng
@@ -1305,7 +1463,7 @@ angular.module("orsApp").directive("orsMap", () => {
             })
             .on("click", e => {
               $scope.mapModel.map.closePopup();
-              const snappedPosition = $scope.locateOnLineCopiedFromGeometryUtil(
+              const snappedPosition = $scope.locateClosestPointOnLine(
                 mapModel.map,
                 hoverPolyLine,
                 e.latlng
@@ -1497,7 +1655,7 @@ angular.module("orsApp").directive("orsMap", () => {
         orsSettingsFactory.subscribeToNgRoute(function onNext(route) {
           //let svg = d3.select($scope.mapModel.map.getPanes().overlayPane);
           $scope.clearMap(true);
-          $scope.routing = route == "directions";
+          $scope.routing = route === "directions";
           //if ($scope.routing) svg.style("opacity", 1);
         });
         orsSettingsFactory.subscribeToWaypoints(function onNext(d) {
